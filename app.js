@@ -109,7 +109,13 @@ app.get('/mypage', (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userQuery = 'SELECT * FROM mypage_userdata WHERE username = ?';
         const creditQuery = 'SELECT credit FROM credit_userdata WHERE mcname = ?';
-        const historyQuery = 'SELECT * FROM exchange_history WHERE user_id = ? ORDER BY exchange_datetime DESC';
+        const historyQuery = `
+            SELECT exchange_history.*, credit_userdata.mcname AS recipient_name
+            FROM exchange_history
+            JOIN credit_userdata ON exchange_history.address_id = credit_userdata.id
+            WHERE exchange_history.user_id = ?
+            ORDER BY exchange_history.exchange_datetime DESC
+        `;
 
         userDBConnection.query(userQuery, [decoded.username], (err, userResults) => {
             if (err) {
@@ -147,6 +153,7 @@ app.get('/mypage', (req, res) => {
         res.status(400).send('Invalid token');
     }
 });
+
 
 
 
@@ -211,7 +218,7 @@ app.post('/exchange', (req, res) => {
                     const insertRecipientQuery = `
                         INSERT INTO exchange_history 
                         (before_credit, after_credit, exchange_datetime, user_id, which, amount, address_id) 
-                        VALUES (?, ?, NOW(), ?, '受信', ?, ?)
+                        VALUES (?, ?, NOW(), ?, '入金', ?, ?)
                     `;
                     const updateSenderCreditQuery = `
                         UPDATE credit_userdata SET credit = ? WHERE mcname = ?
