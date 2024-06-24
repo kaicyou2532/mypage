@@ -109,31 +109,37 @@ app.get('/mypage', (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userQuery = 'SELECT * FROM mypage_userdata WHERE username = ?';
         const creditQuery = 'SELECT credit FROM credit_userdata WHERE mcname = ?';
+        const historyQuery = 'SELECT * FROM exchange_history WHERE user_id = ? ORDER BY exchange_datetime DESC';
 
         userDBConnection.query(userQuery, [decoded.username], (err, userResults) => {
             if (err) {
                 console.error('Error fetching user:', err);
                 return res.status(500).send('Server error');
-            } else if (userResults.length === 0) {
-                return res.status(400).send('User not found');
             }
 
             const user = userResults[0];
+            const userId = user.id;
 
             userDBConnection.query(creditQuery, [decoded.username], (err, creditResults) => {
                 if (err) {
                     console.error('Error fetching credit:', err);
                     return res.status(500).send('Server error');
-                } else if (creditResults.length === 0) {
-                    return res.status(400).send('Credit information not found');
                 }
 
                 const userCredit = creditResults[0].credit;
 
-                res.render('mypage', { 
-                    username: user.username, 
-                    webUsername: user.web_username, 
-                    credit: userCredit 
+                userDBConnection.query(historyQuery, [userId], (err, historyResults) => {
+                    if (err) {
+                        console.error('Error fetching history:', err);
+                        return res.status(500).send('Server error');
+                    }
+
+                    res.render('mypage', { 
+                        username: user.username, 
+                        webUsername: user.web_username, 
+                        credit: userCredit,
+                        history: historyResults
+                    });
                 });
             });
         });
@@ -141,6 +147,7 @@ app.get('/mypage', (req, res) => {
         res.status(400).send('Invalid token');
     }
 });
+
 
 
 app.post('/exchange', (req, res) => {
