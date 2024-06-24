@@ -159,7 +159,7 @@ app.post('/exchange', (req, res) => {
 
         const userQuery = 'SELECT id FROM mypage_userdata WHERE username = ?';
         const creditQuery = 'SELECT credit FROM credit_userdata WHERE mcname = ?';
-        const addressQuery = 'SELECT id FROM mypage_userdata WHERE username = ?';
+        const addressQuery = 'SELECT mypage_userdata.id AS user_id, credit_userdata.credit AS recipient_credit FROM mypage_userdata JOIN credit_userdata ON mypage_userdata.username = credit_userdata.mcname WHERE mypage_userdata.username = ?';
 
         userDBConnection.query(userQuery, [decoded.username], (err, userResults) => {
             if (err) {
@@ -178,36 +178,74 @@ app.post('/exchange', (req, res) => {
                 const beforeCredit = creditResults[0].credit;
                 const afterCredit = beforeCredit - parseInt(amount, 10);
 
+                if (afterCredit < 0) {
+                    return res.status(400).send('Insufficient credit');
+                }
+
                 userDBConnection.query(addressQuery, [address], (err, addressResults) => {
                     if (err) {
                         console.error('Error fetching address:', err);
                         return res.status(500).send('Server error');
                     }
 
-                    const addressId = addressResults[0].id;
+                    if (addressResults.length === 0) {
+                        return res.status(400).send('Recipient not found');
+                    }
 
-                    const insertQuery = `
+                    const addressId = addressResults[0].user_id;
+                    const recipientCredit = addressResults[0].recipient_credit;
+                    const updatedRecipientCredit = recipientCredit + parseInt(amount, 10);
+
+                    const insertSenderQuery = `
                         INSERT INTO exchange_history 
                         (before_credit, after_credit, exchange_datetime, user_id, which, amount, address_id) 
                         VALUES (?, ?, NOW(), ?, '送金', ?, ?)
                     `;
-                    const updateCreditQuery = `
+                    const insertRecipientQuery = `
+                        INSERT INTO exchange_history 
+                        (before_credit, after_credit, exchange_datetime, user_id, which, amount, address_id) 
+                        VALUES (?, ?, NOW(), ?, '受信', ?, ?)
+                    `;
+                    const updateSenderCreditQuery = `
+                        UPDATE credit_userdata SET credit = ? WHERE mcname = ?
+                    `;
+                    const updateRecipientCreditQuery = `
                         UPDATE credit_userdata SET credit = ? WHERE mcname = ?
                     `;
 
-                    userDBConnection.query(insertQuery, [beforeCredit, afterCredit, userId, amount, addressId], (err, insertResults) => {
+                    userDBConnection.query(insertSenderQuery, [beforeCredit, afterCredit, userId, amount, addressId], (err, insertSenderResults) => {
                         if (err) {
-                            console.error('Error inserting exchange history:', err);
+                            console.error('Error inserting sender exchange history:', err);
                             return res.status(500).send('Server error');
                         }
 
-                        userDBConnection.query(updateCreditQuery, [afterCredit, decoded.username], (err, updateResults) => {
+                        userDBConnection.query(updateSenderCreditQuery, [afterCredit, decoded.username], (err, updateSenderResults) => {
                             if (err) {
-                                console.error('Error updating credit:', err);
+                                console.error('Error updating sender credit:', err);
                                 return res.status(500).send('Server error');
                             }
 
-                            res.send('Exchange recorded successfully');
+                            console.log('Sender credit updated:', updateSenderResults);
+
+                            userDBConnection.query(updateRecipientCreditQuery, [updatedRecipientCredit, address], (err, updateRecipientResults) => {
+                                if (err) {
+                                    console.error('Error updating recipient credit:', err);
+                                    return res.status(500).send('Server error');
+                                }
+
+                                console.log('Recipient credit updated:', updateRecipientResults);
+
+                                userDBConnection.query(insertRecipientQuery, [recipientCredit, updatedRecipientCredit, addressId, amount, userId], (err, insertRecipientResults) => {
+                                    if (err) {
+                                        console.error('Error inserting recipient exchange history:', err);
+                                        return res.status(500).send('Server error');
+                                    }
+
+                                    console.log('Recipient exchange history inserted:', insertRecipientResults);
+
+                                    res.send('Exchange recorded successfully');
+                                });
+                            });
                         });
                     });
                 });
@@ -217,6 +255,11 @@ app.post('/exchange', (req, res) => {
         res.status(400).send('Invalid token');
     }
 });
+
+
+
+
+
 
 
 
