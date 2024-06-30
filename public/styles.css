@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #E6F7F8;
+    background-color: #FFFFFF;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,36 +10,39 @@ body {
 
 .container {
     text-align: center;
-    width: 100%;
+    width: 80%;
     max-width: 400px;
     padding: 20px;
-}
-
-h1 {
-    color: #007B63;
-    font-size: 36px;
-    margin-bottom: 40px;
+    background-color: #E6F7F8;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
     color: #007B63;
     font-size: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 label {
     display: block;
-    text-align: left;
     margin-bottom: 5px;
     color: #007B63;
 }
 
-input[type="text"], input[type="password"] {
-    width: 96%;
+.userlabel {
+    display: flex;
+    justify-content: center
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 300px;
     padding: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    text-align: center;
 }
 
 .login-section {
@@ -56,12 +59,21 @@ input[type="text"], input[type="password"] {
     font-size: 16px;
     text-decoration: none;
     text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .login-button {
     background-color: #007B63;
     color: white;
-    width: 93%;
+    width: 100%;
+    max-width: 300px;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    display: block;
+    margin: 0 auto;
 }
 
 .change-login-button {
@@ -73,6 +85,13 @@ input[type="text"], input[type="password"] {
 .register-button {
     background-color: #90D7D3;
     color: white;
+    margin-top: 10px;
+    width: 80%;
+    max-width: 300px;
+    padding: 15px;
+    font-size: 16px;
+    display: block;
+    margin: 10 0 5 0;
 }
 
 .info-section p {

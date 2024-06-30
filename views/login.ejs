@@ -8,15 +8,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>マイページ</h1>
+        <h2>マイページ登録</h2>
         <div class="login-section">
-            <h2>ログイン</h2>
             <form id="login-form" action="/login" method="post">
-                <label for="username">ユーザー名:</label>
-                <input type="text" id="username" name="username" placeholder="ユーザー名を入力" required>
-                <label for="password">パスワード:</label>
-                <input type="password" id="password" name="password" placeholder="パスワードを入力" required>
-                <button type="submit" class="login-button">ログイン</button>
+                <label for="username">Minecraftのユーザー名で検索:</label>
+                <div class="userlabel">
+                    <input type="text" id="username" name="username" placeholder="Minecraftのユーザー名を入力" required>
+                </div>
+                <button type="submit" class="login-button">検索</button>
             </form>
         </div>
     </div>
