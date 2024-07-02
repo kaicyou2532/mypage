@@ -33,7 +33,7 @@
           OptimusServers
         </h3>
         <h2 class="text-black font-nsjp ml-2 text-4xl mt-2">
-          <%= credit %> Cre
+          <%= credit.toLocaleString() %> Cre
         </h2>
       </div>
     </header>
@@ -48,7 +48,7 @@
             <h2 class="text-[#007B63] font-nsjp ml-2">入出金</h2>
           </div>
           <div
-            class="mr-2 ml-2 h-[190px] xl:h-[450px] xl:px-12 overflow-scroll"
+            class="mr-2 ml-2 h-[190px] xl:h-[450px] xl:px-12 overflow-y-scroll"
           >
             <hr class="h-[1px] border-[#007B63]" />
             <% history.forEach(function(entry) { %>
@@ -70,10 +70,10 @@
                 <div
                   class="<%= entry.which === '送金' ? 'text-[#FF2525]' : 'text-[#375A9E]' %>"
                 >
-                  <%= entry.amount %> Cre
+                  <%= entry.amount.toLocaleString() %> Cre
                 </div>
                 <div class="text-sm font-light">
-                  <%= entry.after_credit %> Cre
+                  <%= entry.after_credit.toLocaleString() %> Cre
                 </div>
               </div>
             </div>
@@ -83,7 +83,7 @@
         </div>
         <div>
           <div
-            class="bg-white xl:w-[600px] pb-5 ml-10 mr-10 mt-4 rounded-lg xl:h-[260px] shadow-md"
+            class="bg-white xl:w-[600px] pb-5 ml-10 xl:ml-5 mr-10 xl:mr-5 mt-4 rounded-lg xl:h-[260px] shadow-md"
           >
             <form id="exchange-form" action="/exchange" method="post">
               <div class="bg-[#90D7D3] h-12 rounded-lg items-center flex mb-2">
@@ -125,7 +125,7 @@
             </form>
           </div>
           <div
-            class="bg-white xl:w-[600px] pb-5 ml-10 mr-10 mt-4 rounded-lg h-[262px] xl:h-[260px] shadow-md"
+            class="bg-white xl:w-[600px] pb-5 ml-10 xl:ml-5 mr-10 xl:mr-5 mt-4 rounded-lg h-[262px] xl:h-[260px] shadow-md"
           >
             <div class="bg-[#90D7D3] h-12 rounded-lg items-center flex mb-2">
               <label class="text-[rgb(0,123,99)] font-nsjp ml-2"
@@ -155,13 +155,42 @@
               </div>
               <div class="w-full h-fit text-center mt-4">
                 <button
-                class="bg-[#90D7D3] text-[#007B63] text-lg pl-2 pr-2 pb-1 rounded-md border-[#007B63] border-[1px]"
-                type="submit"
-              >
-                パスワードを更新
-              </button>
+                  class="bg-[#90D7D3] text-[#007B63] text-lg pl-2 pr-2 pb-1 rounded-md border-[#007B63] border-[1px]"
+                  type="submit"
+                >
+                  パスワードを更新
+                </button>
               </div>
             </form>
+          </div>
+        </div>
+        <div
+          class="relative bg-white xl:h-[536px] h-full ml-10 xl:ml-0 mr-10 xl:mr-10 xl:mx-full xl:w-[600px] mt-4 rounded-lg shadow-md pb-4"
+        >
+          <div
+            class="bg-[#90D7D3] h-12 rounded-lg items-center flex w-full mb-4"
+          >
+            <h2 class="text-[#007B63] font-nsjp ml-2">長者番付</h2>
+          </div>
+          <div
+            class="mr-2 ml-2 h-[190px] xl:h-[450px] xl:px-12 overflow-y-scroll"
+          >
+            <hr class="h-[1px] border-[#007B63]" />
+            <% if (leaderboard && leaderboard.length) { %> <%
+            leaderboard.forEach((user, index) => { %>
+            <div
+              class="flex items-center gap-2 p-1 <%= user.web_username === webUsername ? 'bg-yellow-200' : '' %>"
+            >
+              <h2 class="ml-1 text-2xl"><%= index + 1 %></h2>
+              <p><%= user.web_username %></p>
+              <p class="ml-auto mr-1 text-lg">
+                <%= user.credit.toLocaleString() %>Cre
+              </p>
+            </div>
+            <hr class="h-[1px] border-[#007B63]" />
+            <% }); %> <% } else { %>
+            <p class="ml-2">データがありません。</p>
+            <% } %>
           </div>
         </div>
       </div>

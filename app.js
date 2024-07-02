@@ -95,7 +95,6 @@ app.get("/mypage", (req, res) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("Decoded JWT:", decoded); // デコードしたJWTをログに出力
 
     const userQuery = "SELECT * FROM mypage_userdata WHERE id = ?";
     const creditQuery = "SELECT credit FROM credit_userdata WHERE webname = ?";
@@ -106,8 +105,13 @@ app.get("/mypage", (req, res) => {
         WHERE exchange_history.user_id = ?
         ORDER BY exchange_history.exchange_datetime DESC
     `;
-
-    console.log("Executing user query with id:", decoded.userid);
+    const leaderboardQuery = `
+        SELECT mu.web_username, cu.credit
+        FROM mypage_userdata mu
+        JOIN credit_userdata cu ON mu.web_username = cu.webname
+        ORDER BY cu.credit DESC
+        LIMIT 10
+    `;
 
     userDBConnection.query(userQuery, [decoded.userid], (err, userResults) => {
       if (err) {
@@ -116,16 +120,11 @@ app.get("/mypage", (req, res) => {
       }
 
       if (userResults.length === 0) {
-        console.error("User not found for id:", decoded.userid);
         return res.status(404).send("User not found");
       }
 
       const user = userResults[0];
-      const webUsername = user.web_username; // web_username を取得
-
-      // デバッグ用のログ出力
-      console.log("User found:", user);
-      console.log("Querying credit information for webUsername:", webUsername);
+      const webUsername = user.web_username;
 
       userDBConnection.query(creditQuery, [webUsername], (err, creditResults) => {
         if (err) {
@@ -134,12 +133,10 @@ app.get("/mypage", (req, res) => {
         }
 
         if (creditResults.length === 0) {
-          console.error("Credit information not found for webUsername:", webUsername);
           return res.status(404).send("Credit information not found");
         }
 
         const userCredit = creditResults[0].credit;
-        console.log("User credit found:", userCredit);
 
         userDBConnection.query(historyQuery, [decoded.userid], (err, historyResults) => {
           if (err) {
@@ -147,11 +144,22 @@ app.get("/mypage", (req, res) => {
             return res.status(500).send("Server error");
           }
 
-          res.render("mypage", {
-            username: user.username,
-            webUsername: user.web_username,
-            credit: userCredit,
-            history: historyResults,
+          userDBConnection.query(leaderboardQuery, (err, leaderboardResults) => {
+            if (err) {
+              console.error("Error fetching leaderboard:", err);
+              return res.status(500).send("Server error");
+            }
+
+            // デバッグ用のログ出力
+            console.log("Leaderboard results:", leaderboardResults);
+
+            res.render("mypage", {
+              username: user.username,
+              webUsername: user.web_username,
+              credit: userCredit,
+              history: historyResults,
+              leaderboard: leaderboardResults // 長者番付データをテンプレートに渡す
+            });
           });
         });
       });
@@ -161,6 +169,7 @@ app.get("/mypage", (req, res) => {
     res.status(400).send("Invalid token");
   }
 });
+
 
 
 //送金機能
