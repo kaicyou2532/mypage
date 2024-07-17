@@ -378,6 +378,38 @@ app.post("/mypage", (req, res) => {
   }
 });
 
+// 新しい依頼を作成するエンドポイント
+app.post("/create-request", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).send("Access denied");
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const client_id = decoded.userid;  // トークンからユーザーIDを取得
+    const { requestTitle, request, reward, deadline } = req.body;
+
+    const insertQuery = `
+      INSERT INTO request (title, description, client_id, rewards, deadline_time, status)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    const status = 0;  // 依頼の初期ステータスを0とする（必要に応じて変更）
+
+    userDBConnection.query(insertQuery, [requestTitle, request, client_id, reward, deadline, status], (err, result) => {
+      if (err) {
+        console.error("Error inserting request:", err);
+        return res.status(500).send("Server error");
+      }
+      res.redirect("/mypage");
+    });
+  } catch (err) {
+    console.error("Error verifying token:", err);
+    res.status(400).send("Invalid token");
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

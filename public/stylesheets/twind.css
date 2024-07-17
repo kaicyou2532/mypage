@@ -598,12 +598,20 @@ html {
   position: relative;
 }
 
+.mb-1{
+  margin-bottom: 0.25rem;
+}
+
 .mb-2{
   margin-bottom: 0.5rem;
 }
 
 .mb-4{
   margin-bottom: 1rem;
+}
+
+.ml-0{
+  margin-left: 0px;
 }
 
 .ml-1{
@@ -654,20 +662,16 @@ html {
   margin-top: 1.5rem;
 }
 
-.mr-5{
-  margin-right: 1.25rem;
-}
-
-.ml-5{
-  margin-left: 1.25rem;
-}
-
 .flex{
   display: flex;
 }
 
 .h-12{
   height: 3rem;
+}
+
+.h-32{
+  height: 8rem;
 }
 
 .h-36{
@@ -763,6 +767,11 @@ html {
   background-color: rgb(0 123 99 / var(--tw-bg-opacity));
 }
 
+.bg-\[\#252525\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 37 37 / var(--tw-bg-opacity));
+}
+
 .bg-\[\#375A9E\]{
   --tw-bg-opacity: 1;
   background-color: rgb(55 90 158 / var(--tw-bg-opacity));
@@ -773,14 +782,19 @@ html {
   background-color: rgb(144 215 211 / var(--tw-bg-opacity));
 }
 
-.bg-\[\#E6F7F8\]{
-  --tw-bg-opacity: 1;
-  background-color: rgb(230 247 248 / var(--tw-bg-opacity));
-}
-
 .bg-\[\#EF0000\]{
   --tw-bg-opacity: 1;
   background-color: rgb(239 0 0 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#f8fa98\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 250 152 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#faa798\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(250 167 152 / var(--tw-bg-opacity));
 }
 
 .bg-white{
@@ -930,12 +944,16 @@ html {
 }
 
 @media (min-width: 1280px){
-  .xl\:absolute{
-    position: absolute;
-  }
-
   .xl\:bottom-2{
     bottom: 0.5rem;
+  }
+
+  .xl\:ml-0{
+    margin-left: 0px;
+  }
+
+  .xl\:ml-5{
+    margin-left: 1.25rem;
   }
 
   .xl\:ml-auto{
@@ -946,10 +964,6 @@ html {
     margin-right: 0px;
   }
 
-  .xl\:mr-auto{
-    margin-right: auto;
-  }
-
   .xl\:mr-10{
     margin-right: 2.5rem;
   }
@@ -958,12 +972,8 @@ html {
     margin-right: 1.25rem;
   }
 
-  .xl\:ml-0{
-    margin-left: 0px;
-  }
-
-  .xl\:ml-5{
-    margin-left: 1.25rem;
+  .xl\:mr-auto{
+    margin-right: auto;
   }
 
   .xl\:flex{
@@ -980,6 +990,14 @@ html {
 
   .xl\:h-\[536px\]{
     height: 536px;
+  }
+
+  .xl\:h-\[556px\]{
+    height: 556px;
+  }
+
+  .xl\:w-\[400px\]{
+    width: 400px;
   }
 
   .xl\:w-\[600px\]{
