@@ -176,8 +176,12 @@ app.get("/mypage", (req, res) => {
                         return res.status(500).send("Server error");
                       }
 
-                      const clientIds = requestResults.map(req => req.client_id);
-                      const contractorIds = requestResults.map(req => req.contractor_id);
+                      const clientIds = requestResults.map(
+                        (req) => req.client_id
+                      );
+                      const contractorIds = requestResults.map(
+                        (req) => req.contractor_id
+                      );
 
                       userDBConnection.query(
                         myRequestQuery,
@@ -193,7 +197,10 @@ app.get("/mypage", (req, res) => {
                             [decoded.userid],
                             (err, myOrdersResults) => {
                               if (err) {
-                                console.error("Error fetching user orders:", err);
+                                console.error(
+                                  "Error fetching user orders:",
+                                  err
+                                );
                                 return res.status(500).send("Server error");
                               }
 
@@ -201,18 +208,24 @@ app.get("/mypage", (req, res) => {
 
                               if (allIds.length > 0) {
                                 userDBConnection.query(
-                                  'SELECT id, web_username FROM mypage_userdata WHERE id IN (?)',
+                                  "SELECT id, web_username FROM mypage_userdata WHERE id IN (?)",
                                   [allIds],
                                   (err, userNamesResults) => {
                                     if (err) {
-                                      console.error("Error fetching usernames:", err);
-                                      return res.status(500).send("Server error");
+                                      console.error(
+                                        "Error fetching usernames:",
+                                        err
+                                      );
+                                      return res
+                                        .status(500)
+                                        .send("Server error");
                                     }
 
-                                    const userNamesMap = userNamesResults.reduce((acc, user) => {
-                                      acc[user.id] = user.web_username;
-                                      return acc;
-                                    }, {});
+                                    const userNamesMap =
+                                      userNamesResults.reduce((acc, user) => {
+                                        acc[user.id] = user.web_username;
+                                        return acc;
+                                      }, {});
 
                                     res.render("mypage", {
                                       username: user.username,
@@ -220,20 +233,28 @@ app.get("/mypage", (req, res) => {
                                       credit: userCredit,
                                       history: historyResults,
                                       leaderboard: leaderboardResults,
-                                      requests: requestResults.map(req => ({
+                                      requests: requestResults.map((req) => ({
                                         ...req,
-                                        client_username: userNamesMap[req.client_id],
-                                        contractor_username: userNamesMap[req.contractor_id]
-                                      })), 
-                                      myRequests: myRequestResults.map(req => ({
-                                        ...req,
-                                        client_username: userNamesMap[req.client_id],
-                                        contractor_username: userNamesMap[req.contractor_id]
+                                        client_username:
+                                          userNamesMap[req.client_id],
+                                        contractor_username:
+                                          userNamesMap[req.contractor_id],
                                       })),
-                                      myOrders: myOrdersResults.map(req => ({
+                                      myRequests: myRequestResults.map(
+                                        (req) => ({
+                                          ...req,
+                                          client_username:
+                                            userNamesMap[req.client_id],
+                                          contractor_username:
+                                            userNamesMap[req.contractor_id],
+                                        })
+                                      ),
+                                      myOrders: myOrdersResults.map((req) => ({
                                         ...req,
-                                        client_username: userNamesMap[req.client_id],
-                                        contractor_username: userNamesMap[req.contractor_id]
+                                        client_username:
+                                          userNamesMap[req.client_id],
+                                        contractor_username:
+                                          userNamesMap[req.contractor_id],
                                       })),
                                     });
                                   }
@@ -268,7 +289,6 @@ app.get("/mypage", (req, res) => {
     res.status(400).send("Invalid token");
   }
 });
-
 
 //送金機能
 app.post("/exchange", (req, res) => {
@@ -308,6 +328,11 @@ app.post("/exchange", (req, res) => {
 
       const webUsername = userResults[0].web_username;
       console.log("Webname found:", webUsername);
+
+      // 自分自身への送金をチェック
+      if (webUsername === address) {
+        return res.status(400).send("You cannot send money to yourself");
+      }
 
       //自分のMCIDから自分の資産額を取得
       userDBConnection.query(
@@ -563,23 +588,47 @@ app.post("/accept-request/:id", (req, res) => {
     const contractor_id = decoded.userid;
     const requestId = req.params.id;
 
-    const updateQuery = `
-      UPDATE request
-      SET contractor_id = ?, status = 1
+    // リクエスト情報を取得してクライアントIDをチェックするクエリ
+    const requestQuery = `
+      SELECT client_id FROM request
       WHERE id = ?
     `;
 
-    userDBConnection.query(
-      updateQuery,
-      [contractor_id, requestId],
-      (err, result) => {
-        if (err) {
-          console.error("Error updating request:", err);
-          return res.status(500).send("Server error");
-        }
-        res.redirect("/mypage");
+    userDBConnection.query(requestQuery, [requestId], (err, requestResults) => {
+      if (err) {
+        console.error("Error fetching request:", err);
+        return res.status(500).send("Server error");
       }
-    );
+
+      if (requestResults.length === 0) {
+        return res.status(404).send("Request not found");
+      }
+
+      const client_id = requestResults[0].client_id;
+
+      // クライアントIDと受注者IDが同じ場合はエラーを返す
+      if (client_id === contractor_id) {
+        return res.status(400).send("You cannot accept your own request");
+      }
+
+      const updateQuery = `
+          UPDATE request
+          SET contractor_id = ?, status = 1
+          WHERE id = ?
+        `;
+
+      userDBConnection.query(
+        updateQuery,
+        [contractor_id, requestId],
+        (err, result) => {
+          if (err) {
+            console.error("Error updating request:", err);
+            return res.status(500).send("Server error");
+          }
+          res.redirect("/mypage");
+        }
+      );
+    });
   } catch (err) {
     console.error("Error verifying token:", err);
     res.status(400).send("Invalid token");
@@ -729,18 +778,19 @@ app.post("/approve-request/:id", (req, res) => {
                   amount: amount,
                 };
 
-                axios.post('http://localhost:3007/exchange', exchangeData, {
-                  headers: {
-                    Cookie: `token=${token}`
-                  }
-                })
-                .then(response => {
-                  res.redirect("/mypage");
-                })
-                .catch(error => {
-                  console.error('Error making exchange:', error);
-                  res.status(500).send('Exchange failed');
-                });
+                axios
+                  .post("http://localhost:3007/exchange", exchangeData, {
+                    headers: {
+                      Cookie: `token=${token}`,
+                    },
+                  })
+                  .then((response) => {
+                    res.redirect("/mypage");
+                  })
+                  .catch((error) => {
+                    console.error("Error making exchange:", error);
+                    res.status(500).send("Exchange failed");
+                  });
               }
             );
           }
@@ -752,7 +802,6 @@ app.post("/approve-request/:id", (req, res) => {
     res.status(400).send("Invalid token");
   }
 });
-
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

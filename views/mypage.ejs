@@ -314,23 +314,27 @@
             <div class="mr-2 ml-2 h-[190px] xl:px-12 overflow-y-scroll">
               <hr class="h-[1px] border-[#007B63] mb-2" />
               <% if (myOrders.length > 0) { %> <% myOrders.forEach((myOrder) =>
-              { %> <% if (myOrder.status === 0) { %>
-              <div class="text-lg bg-[#98faa8] w-fit h-fit p-1 rounded mb-1">
-                募集中
+              { %>
+              <div class="flex items-center gap-2">
+                <% if (myOrder.status === 0) { %>
+                <div class="text-lg bg-[#98faa8] w-fit h-fit p-1 rounded mb-1">
+                  募集中
+                </div>
+                <% } else if (myOrder.status === 1) { %>
+                <div class="text-lg bg-[#faa798] w-fit h-fit p-1 rounded mb-1">
+                  依頼中
+                </div>
+                <% } else if (myOrder.status === 2) { %>
+                <div class="text-lg bg-[#f8fa98] w-fit h-fit p-1 rounded mb-1">
+                  承認待ち
+                </div>
+                <% } else if (myOrder.status === 3) { %>
+                <div class="text-lg bg-[#98cffa] w-fit h-fit p-1 rounded mb-1">
+                  承認済み
+                </div>
+                <% } %>
+                <div class="text-xl"><%= myOrder.contractor_username %></div>
               </div>
-              <% } else if (myOrder.status === 1) { %>
-              <div class="text-lg bg-[#faa798] w-fit h-fit p-1 rounded mb-1">
-                依頼中
-              </div>
-              <% } else if (myOrder.status === 2) { %>
-              <div class="text-lg bg-[#f8fa98] w-fit h-fit p-1 rounded mb-1">
-                承認待ち
-              </div>
-              <% } else if (myOrder.status === 3) { %>
-              <div class="text-lg bg-[#98cffa] w-fit h-fit p-1 rounded mb-1">
-                承認済み
-              </div>
-              <% } %>
               <div class="flex items-center">
                 <div class="text-2xl"><%= myOrder.title %></div>
                 <div class="ml-auto text-2xl"><%= myOrder.rewards %> Cre</div>
