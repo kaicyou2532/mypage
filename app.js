@@ -105,6 +105,7 @@ app.get("/mypage", (req, res) => {
         JOIN credit_userdata ON exchange_history.address_id = credit_userdata.id
         WHERE exchange_history.user_id = ?
         ORDER BY exchange_history.exchange_datetime DESC
+        LIMIT 20
     `;
     const leaderboardQuery = `
         SELECT mu.web_username, cu.credit

@@ -767,11 +767,6 @@ html {
   background-color: rgb(0 123 99 / var(--tw-bg-opacity));
 }
 
-.bg-\[\#252525\]{
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 37 37 / var(--tw-bg-opacity));
-}
-
 .bg-\[\#375A9E\]{
   --tw-bg-opacity: 1;
   background-color: rgb(55 90 158 / var(--tw-bg-opacity));
@@ -790,6 +785,11 @@ html {
 .bg-\[\#98faa8\]{
   --tw-bg-opacity: 1;
   background-color: rgb(152 250 168 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#E6F7F8\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(230 247 248 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#EF0000\]{
